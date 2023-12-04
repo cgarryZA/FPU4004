@@ -560,186 +560,95 @@ MULT
 
     MULTEND
 BBL 0
-
 ARITH
 
     ;Extract Sign Bits
     JMS SIGNBITS
 
+    LD 2
+    ADD 3
+    RAL
+    RAL
+    RAL
+    XCH 3
+
     ; Normalise exponent and shift mantissa
     ; Calculate Exponent Difference
-        CLC
-        LD 6
-        SUB 10
-        JCN 12 A32RITH
-            JUN A1RITH
-        A32RITH
-        ; if E1 LOW != E2 LOW
-            JCN 2 A2RITH
-            ; EXP2_Low > EXP1_Low
-                CLC
-                LD 10
-                SUB 6
-                XCH 14
-                LDM 0
-                XCH 0
-                JUN A3RITH
-            A2RITH
-            ; EXP1_Low > EXP2_Low
-                XCH 14
-                LDM 1
-                XCH 0
-            A3RITH
-            CLC
-            LD 0
-            JCN 12 A4RITH
-            ;R0 = AZ
-            ;EXP2_High > EXP1_High
-                LD 11
-                SUB 7
-                XCH 15
-                CMC
-                LD 10
-                SUB 6
-                XCH 14
-                LD 8
-                XCH 12
-                LD 9
-                XCH 13
-                JUN A5RITH
-            A4RITH
-            ;R0 = AN
-            ;EXP1_High > EXP2_High
-                LD 7
-                SUB 11
-                XCH 15
-                CMC
-                LD 6
-                SUB 10
-                XCH 14
-                LD 4
-                XCH 12
-                LD 5
-                XCH 13
-            A5RITH
-            JUN A6RITH
-        A1RITH
-        ;if E1 LOW = E2 LOW
-            XCH 14
-            CMC
+    LD 7
+    SUB 11
+    XCH 15
+    CMC
+    LD 6
+    SUB 10
+    XCH 14
+    JCN 2 bhk13tr
+        JUN fn1jf34
+    bhk13tr
+    ;no Carry
+    ;E1 > E2
+        JCN 12 nbbfj31
             LD 7
             SUB 11
-            JCN 2 A7RITH
-            ;EXP2_High > EXP1_High
-                LD 11
-                SUB 7
-                XCH 15
-                LD 4
-                XCH 12
-                LD 5
-                XCH 13
-                LDM 0
-                XCH 0
-                JUN A6RITH
-            A7RITH
-            ;EXP1_High > EXP2_High
-                XCH 15
-                LD 8
-                XCH 12
-                LD 9
-                XCH 13
-                LDM 1
-                XCH 0
-    A6RITH
+            JCN 12 nbbfj31
+                JUN gg041
+        nbbfj31
+        LD 8
+        XCH 12
+        LD 9
+        XCH 13
 
-    ;Check if Mantissa Needs Shifting
-        LD 14
-        JCN 12 A8RITH
-        ;dEXP_High = AZ
-            LD 15
-            JCN 12 A8RITH
-            ; dEXP_Low = AZ
-                JUN A10RITH
-    A8RITH
-
-    ;Adjust Smaller Exponent
         CLC
-        LD 0
-        JCN 12 A11RITH
-        ;R0 = AZ
-            LD 7
-            ADD 15
-            XCH 7
-            LD 6
-            ADD 14
-            XCH 6
-            CLC
-            JUN A12RITH
-        A11RITH
-        ;R0 = AN
-            LD 11
-            ADD 15
-            XCH 11
-            LD 10
-            ADD 14
-            XCH 10
-            CLC
-    A12RITH
+        LD 11
+        ADD 15
+        XCH 11
+        LD 10
+        ADD 14
+        XCH 10
+        CLC
 
-    ;Shift Mantissa
-        A13RITH
-        ;Loop Until dEXP = 0
-            LD 15
-            DAC
-            JCN 2 A14RITH
-            ;R15 was AZ
-                LD 14
-                JCN 4 A10RITH
-                ;R14 = AN
-                    CLC
-                    DAC
-                    XCH 14
-                    LD 15
-                    DAC
-                    XCH 15
-                    JUN A15RITH
-            A14RITH
-            ;R15 was AN
-                XCH 15
+        JMS ADJUST_MANTISSA
 
-        ;Shift Mantissa Right
-        A15RITH
-            CLC
-            LD 12
-            RAR
-            XCH 12
-            LD 13
-            RAR
-            XCH 13
-            JUN A13RITH
-        A10RITH
+        LD 12
+        XCH 8
+        LD 13
+        XCH 9
 
-        ;Store Adjusted Mantissa in Working
-            LD 0
-            JCN 12 A16RITH
-            ;R0 = AZ
-                LD 12
-                XCH 4
-                LD 13
-                XCH 5
-                JUN A17RITH
-            A16RITH
-            ;R0 = AN
-                LD 12
-                XCH 8
-                LD 13
-                XCH 9
-        A17RITH
+        JUN gg041
+    fn1jf34
+    ;Carry
+    ;e2 > e1
+        LD 4
+        XCH 12
+        LD 5
+        XCH 13
+        CLC
+        LD 11
+        SUB 7
+        XCH 15
+        CMC
+        LD 10
+        SUB 6
+        XCH 14
+
+        CLC
+        LD 7
+        ADD 15
+        XCH 7
+        LD 6
+        ADD 14
+        XCH 6
+        CLC
+
+        JMS ADJUST_MANTISSA
+
+        LD 12
+        XCH 4
+        LD 13
+        XCH 5
+    gg041
 
     ;Check Signs
-        CLC
-        LD 2
-        SUB 3
+        LD 3
         JCN 4 A18RITH
         ;S1 != S2
             JUN A19RITH
@@ -748,22 +657,21 @@ ARITH
         ; Load Either Exponent
             LD 7
             XCH 15
-            ; Add Sign Bit
-            LD 2
-            CLC
-            RAL
-            RAL
-            RAL
-            ADD 6
+
+            LD 6
             XCH 14
 
         ;Add Mantissas
                 CLC
-                LD 5
-                ADD 9
+                LD 2
+                ADD 1
+                LD 2
+                ADD 0
+                LD 9
+                ADD 5
                 XCH 13
-                LD 4
-                ADD 8
+                LD 8
+                ADD 4
                 XCH 12
                 JCN 10 A21RITH
                 ;Carry
@@ -781,25 +689,36 @@ ARITH
     ;S1 != S2
     ;Subtract Smaller M from Bigger
         CLC
+        LD 0
+        SUB 2
+        CMC
+        LD 1
+        SUB 2
+        CMC
         LD 5
         SUB 9
         CMC
         LD 4
         SUB 8
         JCN 12 A33RITH
+        ;AZ
             CLC
             LD 5
             SUB 9
             JCN 12 A33RITH
-                LDM 0
-                XCH 12
-                LDM 0
-                XCH 13
-                LDM 3
-                XCH 14
-                LDM 15
-                XCH 15
-                JUN jvci1
+                CLC
+                LD 2
+                SUB 3
+                JCN 12 A33RITH
+                    LDM 0
+                    XCH 12
+                    LDM 0
+                    XCH 13
+                    LDM 3
+                    XCH 14
+                    LDM 15
+                    XCH 15
+                    JUN jvci1
         A33RITH
         CLC
         LD 4
@@ -811,17 +730,18 @@ ARITH
             ;Load EXP1
             LD 7
             XCH 15
-            ;Load SIGN1
-            LD 2
-            CLC
-            RAL
-            RAL
-            RAL
-            ADD 6
+
+            LD 6
             XCH 14
             CLC
 
             ;M1 - M2
+            LD 2
+            SUB 0
+            CMC
+            LD 2
+            SUB 1
+            CMC
             LD 5
             SUB 9
             XCH 13
@@ -829,22 +749,29 @@ ARITH
             LD 4
             SUB 8
             XCH 12
+
+            JMS Ri2cm
+
             JUN A22RITH
         A23RITH
         ;M2 > M1
             ;EXP2
             LD 11
             XCH 15
-            ;Add SIGN2
-            LD 3
-            CLC
-            RAL
-            RAL
-            RAL
-            ADD 10
+
+            LD 10
             XCH 14
 
             ;M2-M1
+            CLC
+            LD 1
+            SUB 2
+            XCH 1
+            CMC
+            LD 0
+            SUB 2
+            XCH 0
+            CMC
             LD 9
             SUB 5
             XCH 13
@@ -852,7 +779,31 @@ ARITH
             LD 8
             SUB 4
             XCH 12
+
+            JMS Ri2cm
     A22RITH
+        LD 12
+        RAL
+        CLC
+        RAL
+        CLC
+        RAL
+        CLC
+        JCN 12 fh3ui
+                LD 1
+                RAL
+                XCH 1
+                LD 0
+                RAL
+                XCH 0
+                LD 13
+                RAL
+                XCH 13
+                LD 12
+                RAL
+                XCH 12
+                JUN A22RITH
+        fh3ui
         JMS NORM
     A31RITH
     LD 13
@@ -865,6 +816,88 @@ ARITH
     CLC
 
     JMS NORM
+BBL 0
+
+ADJUST_MANTISSA
+
+    CLC
+    LD 2
+    RAR
+    RAR
+    ADD 6
+    XCH 6
+    CLC
+
+    LDM 0
+    XCH 0
+    LDM 0
+    XCH 1
+    LDM 0
+    XCH 2
+
+    ;Shift Mantissa
+    A13RITH
+    ;Loop Until dEXP = 0
+        LD 15
+        DAC
+        NOP
+        NOP
+        NOP
+        NOP
+        NOP
+        NOP
+        NOP
+        NOP
+        NOP
+        JCN 10 gbug411
+            JUN A14RITH
+        gbug411
+        ;R15 was AZ
+            LD 14
+            JCN 12 Ag3410RITH
+                JUN A10RITH
+            Ag3410RITH
+            ;R14 = AN
+                CLC
+                DAC
+                XCH 14
+                LD 15
+                DAC
+                XCH 15
+                JUN A15RITH
+        A14RITH
+        ;R15 was AN
+            XCH 15
+
+    ;Shift Mantissa Right
+    A15RITH
+        CLC
+        LD 12
+        RAR
+        XCH 12
+        LD 13
+        RAR
+        XCH 13
+        LD 0
+        RAR
+        XCH 0
+        LD 1
+        RAR
+        XCH 1
+        JUN A13RITH
+    A10RITH
+BBL 0
+
+RI2cm
+    JCN 2 A42RITH
+        LD 12
+        RAR
+        XCH 12
+        LD 13
+        RAR
+        XCH 13
+        CLC
+    A42RITH
 BBL 0
 
 DIV
@@ -1082,9 +1115,9 @@ STRT
     LD 9
     WRM
     LD 10
-    WR1
-    LD 11
     WR2
+    LD 11
+    WR3
 
         LDM 8
     XCH 4
@@ -1172,9 +1205,9 @@ Loop1
     SRC 0
     RDM
     XCH 5
-    RD1
-    XCH 6
     RD2
+    XCH 6
+    RD3
     XCH 7
 
     JMS ARITH
@@ -1200,12 +1233,12 @@ Loop1
     LD 5
     XCH 9
 
-    RD1
+    RD2
     XCH 6
     LD 6
     XCH 10
 
-    RD2
+    RD3
     XCH 7
     LD 7
     XCH 11
